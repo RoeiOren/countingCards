@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cards Counting</title>
+    <link rel="stylesheet" href="index.css" />
+  </head>
+  <body>
+    <div id="root" class="container">
+      <img src="public/Blackjack-Basic-Strategy-Chart.png" alt="blackjack chart" height="650" width="300" />
+      <div id="info" class="container">
+        <div id="decksInfo" class="container">
+          <h3 class="item">Number of decks:</h3>
+          <h3 class="item" id="numberOfDecks">6</h3>
+          <button class="item" onclick="handleDecksChange(event)">-</button>
+          <button class="item" onclick="handleDecksChange(event)">+</button>
+        </div>
+
+        <div id="counting" class="container"></div>
+        <div id="runningCountDiv" class="container">
+          <h2>Running Count:</h2>
+          <h2 id="runningCount">0</h2>
+        </div>
+        <div id="trueCountDiv" class="container">
+          <h2>True Count:</h2>
+
+          <h2 id="trueCount">0</h2>
+        </div>
+
+        <button id="undo" onclick="undo()">UNDO</button>
+
+        <button id="reset" onclick="reset()">RESET</button>
+      </div>
+
+      <h1 id="historyLabel">History:</h1>
+      <h1 id="history"></h1>
+    </div>
+
+    <div id="cards" class="container">
+      <img class="card" src="public/English_pattern_ace_of_spades.svg" height="200" width="120" onclick="updateRunningCount('A')" />
+      <img class="card" src="public/English_pattern_2_of_spades.svg" height="200" width="120" onclick="updateRunningCount('2')" />
+      <img class="card" src="public/English_pattern_3_of_spades.svg" height="200" width="120" onclick="updateRunningCount('3')" />
+      <img class="card" src="public/English_pattern_4_of_spades.svg" height="200" width="120" onclick="updateRunningCount('4')" />
+      <img class="card" src="public/English_pattern_5_of_spades.svg" height="200" width="120" onclick="updateRunningCount('5')" />
+      <img class="card" src="public/English_pattern_6_of_spades.svg" height="200" width="120" onclick="updateRunningCount('6')" />
+      <img class="card" src="public/English_pattern_7_of_spades.svg" height="200" width="120" onclick="updateRunningCount('7')" />
+      <img class="card" src="public/English_pattern_8_of_spades.svg" height="200" width="120" onclick="updateRunningCount('8')" />
+      <img class="card" src="public/English_pattern_9_of_spades.svg" height="200" width="120" onclick="updateRunningCount('9')" />
+      <img class="card" src="public/English_pattern_10_of_spades.svg" height="200" width="120" onclick="updateRunningCount('10')" />
+      <img class="card" src="public/English_pattern_jack_of_spades.svg" height="200" width="120" onclick="updateRunningCount('J')" />
+      <img class="card" src="public/English_pattern_queen_of_spades.svg" height="200" width="120" onclick="updateRunningCount('Q')" />
+      <img class="card" src="public/English_pattern_king_of_spades.svg" height="200" width="120" onclick="updateRunningCount('K')" />
+    </div>
+
+    <script>
+      let decks = 6;
+      let history = [];
+      let runningCount = 0;
+
+      function handleDecksChange(e) {
+        if (e.target.innerText === '+') {
+          decks++;
+        } else {
+          if (decks > 1) decks--;
+        }
+        document.getElementById('numberOfDecks').innerText = decks;
+      }
+
+      function updateRunningCount(card) {
+        if (card === 'A' || card === 'K' || card === 'Q' || card === 'J' || card === '10') {
+          if (countAppearances(card) < 4 * decks) runningCount--;
+          else return;
+        } else if (card === '2' || card === '3' || card === '4' || card === '5' || card === '6') {
+          if (countAppearances(card) < 4 * decks) runningCount++;
+          else return;
+        }
+
+        const remainingDecks = decks - Math.floor(history.length / 52);
+        history.push(card);
+        document.getElementById('runningCount').innerText = runningCount;
+        document.getElementById('trueCount').innerText = Math.round(runningCount / remainingDecks);
+        document.getElementById('history').innerText = history.join(', ');
+      }
+
+      function undo() {
+        const card = history.pop();
+        if (card === 'A' || card === 'K' || card === 'Q' || card === 'J' || card === '10') {
+          runningCount++;
+        } else if (card === '2' || card === '3' || card === '4' || card === '5' || card === '6') {
+          runningCount--;
+        }
+
+        const remainingDecks = decks - Math.floor(history.length / 52);
+
+        document.getElementById('runningCount').innerText = runningCount;
+        document.getElementById('trueCount').innerText = Math.round(runningCount / remainingDecks);
+        document.getElementById('history').innerText = history.join(', ');
+      }
+
+      function reset() {
+        runningCount = 0;
+        history = [];
+        const remainingDecks = decks - Math.floor(history.length / 52);
+        document.getElementById('runningCount').innerText = runningCount;
+        document.getElementById('trueCount').innerText = Math.round(runningCount / remainingDecks);
+        document.getElementById('history').innerText = '';
+      }
+
+      function countAppearances(card) {
+        let count = 0;
+
+        for (let i = 0; i < history.length; i++) {
+          if (history[i] === card) {
+            count++;
+          }
+        }
+
+        return count;
+      }
+    </script>
+  </body>
+</html>
